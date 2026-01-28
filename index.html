@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special for София Мяуковна 💖</title>
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #ffe6f0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    user-select: none;
+  }
+  #heart {
+    width: 80px;
+    height: 80px;
+    background: red;
+    clip-path: polygon(50% 0%, 61% 11%, 75% 10%, 88% 23%, 88% 39%, 75% 57%, 50% 80%, 25% 57%, 12% 39%, 12% 23%, 25% 10%, 39% 11%);
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  #textBox {
+    position: absolute;
+    bottom: 20%;
+    width: 80%;
+    text-align: center;
+    font-size: 1.2em;
+    color: #330000;
+    pointer-events: none;
+  }
+  .hidden { display: none; }
+  #overlay {
+    position: absolute;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 1.5em;
+    flex-direction: column;
+  }
+  .btn {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: pink;
+    color: #330000;
+  }
+</style>
+</head>
+<body>
 
+<div id="heart"></div>
+<div id="textBox"></div>
+<div id="overlay" class="hidden"></div>
+
+<script>
+let step = 0;
+const heart = document.getElementById('heart');
+const textBox = document.getElementById('textBox');
+const overlay = document.getElementById('overlay');
+
+function typeText(text, callback) {
+  textBox.textContent = '';
+  let i = 0;
+  let interval = setInterval(() => {
+    textBox.textContent += text[i];
+    i++;
+    if (i >= text.length) {
+      clearInterval(interval);
+      if (callback) callback();
+    }
+  }, 50);
+}
+
+function randomPos() {
+  const x = Math.random() * (window.innerWidth - 80);
+  const y = Math.random() * (window.innerHeight - 80);
+  heart.style.left = x + 'px';
+  heart.style.top = y + 'px';
+}
+
+function nextStep() {
+  step++;
+  if(step === 1) {
+    overlay.classList.add('hidden');
+    typeText('ой, ты поймала мое сердечко!', () => {
+      document.body.onclick = () => { nextStep(); document.body.onclick = null; };
+    });
+  } else if(step === 2) {
+    typeText('ну.. хорошо.. можешь оставить его у себя\n(пожалуйста)', () => {
+      document.body.onclick = () => { showChoices(); document.body.onclick = null; };
+    });
+  }
+}
+
+function showChoices() {
+  textBox.textContent = '';
+  overlay.classList.remove('hidden');
+  overlay.innerHTML = `
+    <div>Выбери:</div>
+    <button class="btn" onclick="question('милота')">милота</button>
+    <button class="btn" onclick="question('правда')">правда</button>
+  `;
+}
+
+function question(type) {
+  overlay.innerHTML = '';
+  overlay.classList.add('hidden');
+  if(type === 'милота') {
+    askQuestion('как думаешь, что я сейчас делаю?', [
+      {text:'бездельничаю', resp:'неее'},
+      {text:'сплю', resp:'без тебя не хочу'},
+      {text:'рисую', resp:'седня не'},
+      {text:'думаю о тебе', resp:'ну конечно!! умничка.'}
+    ], () => showChoices());
+  } else if(type === 'правда') {
+    askQuestion('как думаешь, что я люблю больше всего на свете?', [
+      {text:'собачек', resp:'я и вправду их очень люблю, но не больше всего'},
+      {text:'немецкую культуру', resp:'она конечно мне очень нравится, только есть кое что получше'},
+      {text:'белого монстра', resp:'он вкусный, но вредный'},
+      {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал'}
+    ], () => showChoices());
+  }
+}
+
+function askQuestion(question, options, callback) {
+  overlay.classList.remove('hidden');
+  overlay.innerHTML = `<div>${question}</div>`;
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.textContent = opt.text;
+    btn.onclick = () => {
+      typeText(opt.resp, () => { 
+        if(opt.text.includes('думаю о тебе') || opt.text.includes('гски')) {
+          showChoices();
+        } else {
+          askQuestion(question, options, callback);
+        }
+      });
+    };
+    overlay.appendChild(btn);
+  });
+}
+
+heart.onclick = () => { nextStep(); heart.style.display='none'; }
+randomPos();
+setInterval(randomPos, 1500);
+</script>
+
+</body>
+</html>
