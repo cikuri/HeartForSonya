@@ -8,89 +8,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body {
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
   font-family: 'Press Start 2P', monospace;
   background: #ffe6f0;
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+  height: 100vh; width: 100vw;
 }
 
 #bg {
-  position: absolute;
-  top:0; left:0; width: 100%; height: 100%;
+  position: absolute; top:0; left:0; width: 100%; height: 100%;
   background-image: radial-gradient(#ffb3d1 15%, transparent 15%);
   background-size: 40px 40px;
   z-index: 1;
 }
 
 #heart {
-  position: absolute;
-  font-size: 50px;
-  cursor: pointer;
-  z-index: 9999;
-  user-select: none;
-  line-height: 1;
-  transition: transform 0.1s;
-}
-
-#heart:active {
-  transform: scale(0.8);
+  position: absolute; font-size: 50px;
+  cursor: pointer; z-index: 9999;
+  user-select: none; line-height: 1;
 }
 
 #textBox {
-  position: absolute;
-  top: 40%;
-  left: 50%;
+  position: absolute; top: 45%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 85%;
-  text-align: center;
-  font-size: 14px;
-  color: #330000;
-  z-index: 10;
-  pointer-events: none;
-  line-height: 1.6;
+  width: 85%; text-align: center;
+  font-size: 14px; color: #330000;
+  z-index: 10; pointer-events: none;
+  line-height: 1.8; white-space: pre-line;
 }
 
 #overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(255, 230, 240, 0.95);
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  z-index: 10000; padding: 20px; box-sizing: border-box;
 }
 
 .btn {
-  margin: 10px;
-  padding: 15px;
+  margin: 5px; padding: 10px;
   font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
-  border: 4px solid #330000;
-  background: #ffb3d1;
-  color: #330000;
-  cursor: pointer;
+  font-size: 9px; border: 4px solid #330000;
+  background: #ffb3d1; color: #330000;
+  cursor: pointer; width: 100%; max-width: 320px;
 }
 
 #footerText {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  font-size: 9px;
-  color: #ff4d6d;
-  z-index: 100;
+  position: absolute; bottom: 15px; right: 15px;
+  font-size: 9px; color: #ff4d6d; z-index: 100;
 }
 </style>
 </head>
 <body>
 <div id="bg"></div>
-
 <div id="heart">💗</div>
-
-<div id="textBox">Поймай моё сердечко!</div>
+<div id="textBox">Поймай моё сердечко...</div>
 <div id="overlay"></div>
 <div id="footerText">special for София Мяуковна</div>
 
@@ -102,95 +74,12 @@ const overlay = document.getElementById('overlay');
 let milotaDone = false;
 let pravdaDone = false;
 
-// Плавное движение
 let posX = Math.random() * (window.innerWidth - 70);
 let posY = Math.random() * (window.innerHeight - 70);
-let dx = 2.5;
-let dy = 2.5;
+let dx = 2.5; let dy = 2.5;
 
 function move() {
-  posX += dx;
-  posY += dy;
-
+  posX += dx; posY += dy;
   if (posX <= 0 || posX >= window.innerWidth - 60) dx *= -1;
   if (posY <= 0 || posY >= window.innerHeight - 60) dy *= -1;
-
-  heart.style.left = posX + 'px';
-  heart.style.top = posY + 'px';
-  requestAnimationFrame(move);
-}
-move();
-
-function type(text, cb) {
-  textBox.textContent = '';
-  let i = 0;
-  const t = setInterval(() => {
-    textBox.textContent += text[i];
-    i++;
-    if(i >= text.length) {
-      clearInterval(t);
-      setTimeout(cb, 1200);
-    }
-  }, 60);
-}
-
-heart.onclick = (e) => {
-  e.stopPropagation();
-  heart.style.display = 'none';
-  type('Ой! Ты поймала моё сердечко!', () => {
-    type('Оставь его себе... пожалуйста.', () => showMenu());
-  });
-};
-
-function showMenu() {
-  if (milotaDone && pravdaDone) {
-    type('Конец! Надеюсь тебе понравилось, я очень старался ❤️');
-    return;
-  }
-  overlay.style.display = 'flex';
-  overlay.innerHTML = '<p style="color:#330000; margin-bottom:20px;">ВЫБЕРИ:</p>';
-  
-  if(!milotaDone) addBtn('милота', () => startQuest('милота'));
-  if(!pravdaDone) addBtn('правда', () => startQuest('правда'));
-}
-
-function addBtn(txt, fn) {
-  const b = document.createElement('button');
-  b.className = 'btn';
-  b.textContent = txt;
-  b.onclick = fn;
-  overlay.appendChild(b);
-}
-
-function startQuest(type) {
-  overlay.style.display = 'none';
-  if(type === 'милота') {
-    ask('как думаешь, что я сейчас делаю?', [
-      {t:'бездельничаю', r:'не угадала...'},
-      {t:'думаю о тебе', r:'конечно! умничка.', c:true}
-    ], () => { milotaDone = true; showMenu(); });
-  } else {
-    ask('что я люблю больше всего?', [
-      {t:'монстр', r:'вкусно, но нет'},
-      {t:'твои гс-ки', r:'да! твой голос — лучшее на свете.', c:true}
-    ], () => { pravdaDone = true; showMenu(); });
-  }
-}
-
-function ask(q, opts, cb) {
-  overlay.style.display = 'flex';
-  overlay.innerHTML = `<p style="color:#330000; padding:15px; text-align:center;">${q}</p>`;
-  opts.forEach(o => {
-    const b = document.createElement('button');
-    b.className = 'btn';
-    b.textContent = o.t;
-    b.onclick = () => {
-      overlay.style.display = 'none';
-      type(o.r, () => o.c ? cb() : ask(q, opts, cb));
-    };
-    overlay.appendChild(b);
-  });
-}
-</script>
-</body>
-</html>
+  heart.style.left = posX + 'px'; heart.style.top = posY + 'px';
