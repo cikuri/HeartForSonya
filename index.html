@@ -2,92 +2,95 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>для Сонячки💗</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Press Start 2P', monospace;
   background: #ffe6f0;
   overflow: hidden;
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
 }
 
 #bg {
   position: absolute;
-  width: 100%; height: 100%;
-  background-image: radial-gradient(pink 10%, transparent 10%);
-  background-size: 30px 30px;
-  z-index: -1;
+  top:0; left:0; width: 100%; height: 100%;
+  background-image: radial-gradient(#ffb3d1 15%, transparent 15%);
+  background-size: 40px 40px;
+  z-index: 1;
 }
 
 #heart {
-  width: 60px;
-  height: 60px;
   position: absolute;
+  font-size: 50px;
   cursor: pointer;
-  z-index: 1000;
-  filter: drop-shadow(0 0 10px rgba(255,100,100,0.5));
+  z-index: 9999;
+  user-select: none;
+  line-height: 1;
+  transition: transform 0.1s;
+}
+
+#heart:active {
+  transform: scale(0.8);
 }
 
 #textBox {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 85%;
   text-align: center;
   font-size: 14px;
-  line-height: 1.6;
   color: #330000;
   z-index: 10;
   pointer-events: none;
+  line-height: 1.6;
 }
 
 #overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(255, 230, 240, 0.9);
+  background: rgba(255, 230, 240, 0.95);
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
-  padding: 20px;
-  box-sizing: border-box;
-  text-align: center;
+  z-index: 10000;
 }
 
 .btn {
   margin: 10px;
   padding: 15px;
   font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  cursor: pointer;
+  font-size: 12px;
   border: 4px solid #330000;
   background: #ffb3d1;
   color: #330000;
+  cursor: pointer;
 }
 
 #footerText {
   position: absolute;
   bottom: 15px;
-  width: 100%;
-  text-align: center;
-  font-size: 8px;
-  color: #ff85a2;
+  right: 15px;
+  font-size: 9px;
+  color: #ff4d6d;
+  z-index: 100;
 }
 </style>
 </head>
 <body>
 <div id="bg"></div>
 
-<svg id="heart" viewBox="0 0 32 29.6">
-  <path fill="#ff4d6d" d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,16,21.2,16,21.2s16-11.8,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-</svg>
+<div id="heart">💗</div>
 
-<div id="textBox">Поймай моё сердечко...</div>
+<div id="textBox">Поймай моё сердечко!</div>
 <div id="overlay"></div>
 <div id="footerText">special for София Мяуковна</div>
 
@@ -96,112 +99,96 @@ const heart = document.getElementById('heart');
 const textBox = document.getElementById('textBox');
 const overlay = document.getElementById('overlay');
 
-let step = 0;
 let milotaDone = false;
 let pravdaDone = false;
-let canClick = true;
 
 // Плавное движение
-let posX = Math.random() * (window.innerWidth - 60);
-let posY = Math.random() * (window.innerHeight - 60);
-let velX = 2;
-let velY = 2;
+let posX = Math.random() * (window.innerWidth - 70);
+let posY = Math.random() * (window.innerHeight - 70);
+let dx = 2.5;
+let dy = 2.5;
 
-function animate() {
-  if (heart.style.display !== 'none') {
-    posX += velX;
-    posY += velY;
+function move() {
+  posX += dx;
+  posY += dy;
 
-    if (posX <= 0 || posX >= window.innerWidth - 60) velX *= -1;
-    if (posY <= 0 || posY >= window.innerHeight - 60) velY *= -1;
+  if (posX <= 0 || posX >= window.innerWidth - 60) dx *= -1;
+  if (posY <= 0 || posY >= window.innerHeight - 60) dy *= -1;
 
-    heart.style.left = posX + 'px';
-    heart.style.top = posY + 'px';
-    requestAnimationFrame(animate);
-  }
+  heart.style.left = posX + 'px';
+  heart.style.top = posY + 'px';
+  requestAnimationFrame(move);
 }
-animate();
+move();
 
-function typeText(text, callback) {
+function type(text, cb) {
   textBox.textContent = '';
   let i = 0;
-  const interval = setInterval(() => {
+  const t = setInterval(() => {
     textBox.textContent += text[i];
     i++;
     if(i >= text.length) {
-      clearInterval(interval);
-      setTimeout(() => { if(callback) callback(); }, 1000);
+      clearInterval(t);
+      setTimeout(cb, 1200);
     }
-  }, 50);
+  }, 60);
 }
 
-heart.addEventListener('click', () => {
+heart.onclick = (e) => {
+  e.stopPropagation();
   heart.style.display = 'none';
-  nextStep();
-});
+  type('Ой! Ты поймала моё сердечко!', () => {
+    type('Оставь его себе... пожалуйста.', () => showMenu());
+  });
+};
 
-function nextStep() {
-  step++;
-  if (step === 1) {
-    typeText('Ой! Ты поймала моё сердечко!', () => nextStep());
-  } else if (step === 2) {
-    typeText('Оставь его себе... пожалуйста.', () => showChoices());
-  }
-}
-
-function showChoices() {
+function showMenu() {
   if (milotaDone && pravdaDone) {
-    typeText('Конец! Надеюсь, тебе понравилось. Я очень старался! ❤️');
+    type('Конец! Надеюсь тебе понравилось, я очень старался ❤️');
     return;
   }
-  
   overlay.style.display = 'flex';
-  overlay.innerHTML = '<div style="margin-bottom:20px">Выбери:</div>';
+  overlay.innerHTML = '<p style="color:#330000; margin-bottom:20px;">ВЫБЕРИ:</p>';
   
-  if (!milotaDone) {
-    const b1 = document.createElement('button');
-    b1.className = 'btn'; b1.textContent = 'милота';
-    b1.onclick = () => question('милота');
-    overlay.appendChild(b1);
-  }
-  if (!pravdaDone) {
-    const b2 = document.createElement('button');
-    b2.className = 'btn'; b2.textContent = 'правда';
-    b2.onclick = () => question('правда');
-    overlay.appendChild(b2);
-  }
+  if(!milotaDone) addBtn('милота', () => startQuest('милота'));
+  if(!pravdaDone) addBtn('правда', () => startQuest('правда'));
 }
 
-function question(type) {
-  overlay.innerHTML = '';
-  if (type === 'милота') {
+function addBtn(txt, fn) {
+  const b = document.createElement('button');
+  b.className = 'btn';
+  b.textContent = txt;
+  b.onclick = fn;
+  overlay.appendChild(b);
+}
+
+function startQuest(type) {
+  overlay.style.display = 'none';
+  if(type === 'милота') {
     ask('как думаешь, что я сейчас делаю?', [
-      {t:'бездельничаю', r:'неее...'},
-      {t:'сплю', r:'без тебя не хочу'},
+      {t:'бездельничаю', r:'не угадала...'},
       {t:'думаю о тебе', r:'конечно! умничка.', c:true}
-    ], () => { milotaDone = true; showChoices(); });
+    ], () => { milotaDone = true; showMenu(); });
   } else {
     ask('что я люблю больше всего?', [
       {t:'монстр', r:'вкусно, но нет'},
-      {t:'гс-ки твои', r:'да! твой голос — лучшее на свете.', c:true}
-    ], () => { pravdaDone = true; showChoices(); });
+      {t:'твои гс-ки', r:'да! твой голос — лучшее на свете.', c:true}
+    ], () => { pravdaDone = true; showMenu(); });
   }
 }
 
-function ask(qText, options, callback) {
+function ask(q, opts, cb) {
   overlay.style.display = 'flex';
-  overlay.innerHTML = `<div style="margin-bottom:20px">${qText}</div>`;
-  options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'btn';
-    btn.textContent = opt.t;
-    btn.onclick = () => {
+  overlay.innerHTML = `<p style="color:#330000; padding:15px; text-align:center;">${q}</p>`;
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'btn';
+    b.textContent = o.t;
+    b.onclick = () => {
       overlay.style.display = 'none';
-      typeText(opt.r, () => {
-        if (opt.c) callback(); else ask(qText, options, callback);
-      });
+      type(o.r, () => o.c ? cb() : ask(q, opts, cb));
     };
-    overlay.appendChild(btn);
+    overlay.appendChild(b);
   });
 }
 </script>
