@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>для Сонячки💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>для Сонячки💗</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -36,18 +36,12 @@
     100% { transform: translate(-50px,-50px); }
   }
 
-  #heart {
+  svg#heart {
     width: 80px;
     height: 80px;
-    background: pink;
-    clip-path: polygon(
-      50% 0%, 61% 11%, 75% 10%, 88% 23%, 88% 39%, 
-      75% 57%, 50% 80%, 25% 57%, 12% 39%, 12% 23%, 
-      25% 10%, 39% 11%
-    );
     position: absolute;
     cursor: pointer;
-    transition: transform 0.05s linear;
+    transform-origin: center center;
   }
 
   #textBox {
@@ -89,11 +83,10 @@
     position: absolute;
     bottom: 5px;
     right: 10px;
-    font-size: 0.8em;
+    font-size: 0.6em;
     color: #330000;
   }
 
-  /* стиль для финального текста */
   .finalText {
     font-family: monospace;
   }
@@ -103,7 +96,12 @@
 <body>
 
 <div id="bg"></div>
-<div id="heart"></div>
+
+<!-- SVG сердечко -->
+<svg id="heart" viewBox="0 0 32 29.6">
+  <path fill="pink" d="M23.6,0C21.4,0,19.4,1.2,18,3C16.6,1.2,14.6,0,12.4,0C7.6,0,4,3.6,4,8.4c0,5.7,12,16.6,12,16.6s12-10.9,12-16.6C28,3.6,24.4,0,23.6,0z"/>
+</svg>
+
 <div id="textBox"></div>
 <div id="overlay"></div>
 <div id="footerText">special for София Мяуковна</div>
@@ -117,28 +115,30 @@ let step = 0;
 let milotaDone = false;
 let pravdaDone = false;
 
-// функция для печатающего текста с замедлением на 33%
+// функция для печатающего текста с замедлением
 function typeText(text, callback, isFinal=false) {
   textBox.textContent = '';
+  textBox.classList.remove('finalText');
   if(isFinal) textBox.classList.add('finalText');
   let i = 0;
   const interval = setInterval(() => {
     textBox.textContent += text[i];
     i++;
-    if (i >= text.length) {
+    if(i >= text.length) {
       clearInterval(interval);
       if(callback) callback();
     }
-  }, 66); // медленнее
+  }, 66); // скорость печати
 }
 
-// плавное движение сердца без остановок
+// плавное движение сердца с лёгким покачиванием
 let heartX = Math.random() * (window.innerWidth - 80);
 let heartY = Math.random() * (window.innerHeight - 80);
 let targetX = heartX;
 let targetY = heartY;
+let angle = 0;
 
-function moveHeart() {
+function moveHeart() { 
   targetX = Math.random() * (window.innerWidth - 80);
   targetY = Math.random() * (window.innerHeight - 80);
 }
@@ -146,27 +146,29 @@ function moveHeart() {
 function animateHeart() {
   heartX += (targetX - heartX) * 0.02;
   heartY += (targetY - heartY) * 0.02;
+  angle = Math.sin(Date.now()/200)*10; // лёгкое покачивание
   heart.style.left = heartX + 'px';
   heart.style.top = heartY + 'px';
+  heart.style.transform = `rotate(${angle}deg)`;
   requestAnimationFrame(animateHeart);
 }
 
+animateHeart();
+setInterval(moveHeart, 3000);
+
+// клик на сердечко
 heart.onclick = () => { nextStep(); heart.style.display='none'; }
 
-animateHeart();
-setInterval(moveHeart, 3000); // новая цель каждые 3 сек
-
-// шаги при кликах
 function nextStep() {
   step++;
   if(step === 1) {
     overlay.style.display = 'none';
     typeText('ой, ты поймала мое сердечко!', () => {
-      document.body.onclick = () => { nextStep(); document.body.onclick = null; };
+      document.body.onclick = () => { nextStep(); document.body.onclick=null; };
     });
   } else if(step === 2) {
     typeText('ну.. хорошо.. можешь оставить его у себя\n(пожалуйста)', () => {
-      document.body.onclick = () => { showChoices(); document.body.onclick = null; };
+      document.body.onclick = () => { showChoices(); document.body.onclick=null; };
     });
   }
 }
@@ -186,14 +188,14 @@ function showChoices() {
 function question(type) {
   overlay.style.display = 'none';
   overlay.innerHTML = '';
-  if(type === 'милота') {
+  if(type==='милота') {
     askQuestion('как думаешь, что я сейчас делаю?', [
       {text:'бездельничаю', resp:'неее'},
       {text:'сплю', resp:'без тебя не хочу'},
       {text:'рисую', resp:'сегодня не'},
       {text:'думаю о тебе', resp:'ну конечно!! умничка.', correct:true}
     ], () => { milotaDone = true; checkFinal(); });
-  } else if(type === 'правда') {
+  } else if(type==='правда') {
     askQuestion('как думаешь, что я люблю больше всего на свете?', [
       {text:'собачек', resp:'я и вправду их очень люблю, но не больше всего'},
       {text:'немецкую культуру', resp:'она конечно мне очень нравится, только есть кое что получше'},
@@ -211,26 +213,18 @@ function askQuestion(questionText, options, callback) {
     btn.className = 'btn';
     btn.textContent = opt.text;
     btn.onclick = () => {
-      overlay.style.display = 'none';
+      overlay.style.display='none';
       typeText(opt.resp, () => {
-        document.body.onclick = () => { 
-          document.body.onclick = null; 
-          overlay.style.display = 'flex'; 
-          askQuestion(questionText, options, callback); 
+        document.body.onclick = () => {
+          document.body.onclick=null;
+          if(!opt.correct) {
+            overlay.style.display='flex';
+            askQuestion(questionText, options, callback);
+          } else {
+            showChoices(); // после правильного ответа показываем кнопки
+          }
         };
       });
       if(opt.correct) callback();
     };
-    overlay.appendChild(btn);
-  });
-}
-
-// проверка финала
-function checkFinal() {
-  if(milotaDone && pravdaDone) {
-    typeText('ᴋонᴇц! нᴀдᴇюᴄь ᴛᴇбᴇ ϶ᴛᴀ иᴦᴩᴀ ᴨонᴩᴀʙиᴧᴀᴄь и ᴨодняᴧᴀ нᴀᴄᴛᴩоᴇниᴇ, я очᴇнь ᴄᴛᴀᴩᴀᴧᴄя', null, true);
-  }
-}
-</script>
-</body>
-</html>
+    overlay.appendChild(btn
