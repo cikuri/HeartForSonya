@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>для Сонячки💗</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -78,6 +79,28 @@ const overlay = document.getElementById('overlay');
 let milotaDone = false;
 let pravdaDone = false;
 
+// Звуковой движок
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTone(freq, type, duration) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+const playTypeSound = () => playTone(600, 'sine', 0.05);
+const playWinSound = () => {
+  playTone(523, 'square', 0.1);
+  setTimeout(() => playTone(659, 'square', 0.1), 100);
+  setTimeout(() => playTone(783, 'square', 0.3), 200);
+};
+
 let posX = Math.random() * (window.innerWidth - 70);
 let posY = Math.random() * (window.innerHeight - 70);
 let dx = 2.5; let dy = 2.5;
@@ -102,6 +125,7 @@ function type(text, isSubText = false, cb) {
   
   const t = setInterval(() => {
     container.innerHTML += text[i];
+    playTypeSound(); // Звук буквы
     i++;
     if(i >= text.length) {
       clearInterval(t);
@@ -114,6 +138,7 @@ function type(text, isSubText = false, cb) {
 }
 
 heart.onclick = (e) => {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   e.stopPropagation();
   heart.style.display = 'none';
   type('ой, ты поймала мое сердечко!', false, () => {
@@ -125,8 +150,14 @@ heart.onclick = (e) => {
 
 function showMenu() {
   if (milotaDone && pravdaDone) {
-    // 2. ИСПРАВЛЕНО: Добавлено сердечко в финал
-    textBox.innerHTML = "конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался💓";
+    playWinSound();
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff4d6d', '#ffb3d1', '#ffffff']
+    });
+    textBox.innerHTML = "конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался 💓";
     return;
   }
   overlay.style.display = 'flex';
@@ -148,15 +179,14 @@ function startQuest(typeQuest) {
       {t:'1. бездельничаю', r:'неее'},
       {t:'2. сплю', r:'без тебя не хочу'},
       {t:'3. рисую', r:'седня не'},
-      {t:'4. думаю о тебе', r:'ну конечно!! умничка', c:true}
+      {t:'4. думаю о тебе', r:'ну конечно!! умничка.', c:true}
     ], () => { milotaDone = true; showMenu(); });
   } else {
     ask('как думаешь, что я люблю больше всего на свете?', [
-      {t:'1. собачек', r:'я и вправду их очень люблю, но не больше всего на свете'},
-      // 3. ИСПРАВЛЕНО: фраза про культуру теперь полная
+      {t:'1. собачек', r:'я и вправду их очень люблю, но не больше всего'},
       {t:'2. немецкую культуру', r:'она конечно мне очень нравится, да вот только есть кое что получше нее)'},
       {t:'3. белого монстра', r:'он вкусный, но вредный'},
-      {t:'4. слушать твои гски', r:'в точку. я просто обожаю твой голос, это лучшее что я когда либо слышал в жизни', c:true}
+      {t:'4. слушать твои гски', r:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал', c:true}
     ], () => { pravdaDone = true; showMenu(); });
   }
 }
