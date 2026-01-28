@@ -35,7 +35,7 @@ body {
 }
 
 .sub-text {
-  color: rgba(51, 0, 0, 0.5); /* Затемнение для (пожалуйста) */
+  color: rgba(51, 0, 0, 0.5); 
   font-size: 10px; display: block; margin-top: 10px;
 }
 
@@ -64,7 +64,7 @@ body {
 <body>
 <div id="bg"></div>
 <div id="heart">💗</div>
-<div id="textBox">Поймай моё сердечко...</div>
+<div id="textBox">янянянянянянян</div>
 <div id="overlay"></div>
 <div id="footerText">special for София Мяуковна</div>
 
@@ -75,9 +75,7 @@ const overlay = document.getElementById('overlay');
 
 let milotaDone = false;
 let pravdaDone = false;
-let step = 0;
 
-// Движение сердечка
 let posX = Math.random() * (window.innerWidth - 70);
 let posY = Math.random() * (window.innerHeight - 70);
 let dx = 2.5; let dy = 2.5;
@@ -91,7 +89,6 @@ function move() {
 }
 move();
 
-// Эффект печати
 function type(text, isSubText = false, cb) {
   if (!isSubText) textBox.innerHTML = '';
   let i = 0;
@@ -106,7 +103,6 @@ function type(text, isSubText = false, cb) {
     i++;
     if(i >= text.length) {
       clearInterval(t);
-      // После того как текст напечатан, ждем клика для продолжения
       document.body.onclick = () => {
         document.body.onclick = null;
         if(cb) cb();
@@ -115,12 +111,10 @@ function type(text, isSubText = false, cb) {
   }, 60);
 }
 
-// 1. Поимка сердца
 heart.onclick = (e) => {
   e.stopPropagation();
   heart.style.display = 'none';
   type('ой, ты поймала мое сердечко!', false, () => {
-    // 2. Вторая фраза с затуханием
     type('ну... хорошо... можешь оставить его у себя', false, () => {
        type('(пожалуйста)', true, () => showMenu());
     });
@@ -129,7 +123,7 @@ heart.onclick = (e) => {
 
 function showMenu() {
   if (milotaDone && pravdaDone) {
-    textBox.innerHTML = "конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался";
+    textBox.innerHTML = "конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался 💓";
     return;
   }
   overlay.style.display = 'flex';
@@ -156,7 +150,7 @@ function startQuest(typeQuest) {
   } else {
     ask('как думаешь, что я люблю больше всего на свете?', [
       {t:'1. собачек', r:'я и вправду их очень люблю, но не больше всего'},
-      {t:'2. немецкую культуру', r:'она конечно мне очень нравится, только есть кое что получше'},
+      {t:'2. немецкую культуру', r:'она конечно мне очень нравится, да вот только есть кое что получше нее)'},
       {t:'3. белого монстра', r:'он вкусный, но вредный'},
       {t:'4. слушать твои гски', r:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал', c:true}
     ], () => { pravdaDone = true; showMenu(); });
