@@ -3,24 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Для Софии 💖</title>
+<title>для Сонячки💖</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
   body {
     margin: 0;
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #ffe6f0, #fff0e6);
+    font-family: 'Press Start 2P', monospace;
+    background: #ffe6f0;
     overflow: hidden;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     user-select: none;
+    position: relative;
+  }
+
+  /* фон с сердечками */
+  #bg {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-image: 
+      radial-gradient(pink 10%, transparent 10%), 
+      radial-gradient(pink 10%, transparent 10%);
+    background-size: 50px 50px;
+    background-position: 0 0, 25px 25px;
+    animation: moveBG 60s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes moveBG {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-50px,-50px); }
   }
 
   #heart {
     width: 80px;
     height: 80px;
-    background: red;
+    background: pink;
     clip-path: polygon(
       50% 0%, 61% 11%, 75% 10%, 88% 23%, 88% 39%, 
       75% 57%, 50% 80%, 25% 57%, 12% 39%, 12% 23%, 
@@ -28,7 +47,7 @@
     );
     position: absolute;
     cursor: pointer;
-    transition: all 1s ease;
+    transition: transform 0.05s linear;
   }
 
   #textBox {
@@ -36,7 +55,7 @@
     bottom: 15%;
     width: 80%;
     text-align: center;
-    font-size: 1.4em;
+    font-size: 1.2em;
     color: #330000;
     pointer-events: none;
     white-space: pre-line;
@@ -74,14 +93,20 @@
     color: #330000;
   }
 
+  /* стиль для финального текста */
+  .finalText {
+    font-family: monospace;
+  }
+
 </style>
 </head>
 <body>
 
+<div id="bg"></div>
 <div id="heart"></div>
 <div id="textBox"></div>
 <div id="overlay"></div>
-<div id="footerText">for София Мяуковна</div>
+<div id="footerText">special for София Мяуковна</div>
 
 <script>
 const heart = document.getElementById('heart');
@@ -89,9 +114,13 @@ const textBox = document.getElementById('textBox');
 const overlay = document.getElementById('overlay');
 
 let step = 0;
+let milotaDone = false;
+let pravdaDone = false;
 
-function typeText(text, callback) {
+// функция для печатающего текста с замедлением на 33%
+function typeText(text, callback, isFinal=false) {
   textBox.textContent = '';
+  if(isFinal) textBox.classList.add('finalText');
   let i = 0;
   const interval = setInterval(() => {
     textBox.textContent += text[i];
@@ -100,19 +129,32 @@ function typeText(text, callback) {
       clearInterval(interval);
       if(callback) callback();
     }
-  }, 50);
+  }, 66); // медленнее
 }
+
+// плавное движение сердца без остановок
+let heartX = Math.random() * (window.innerWidth - 80);
+let heartY = Math.random() * (window.innerHeight - 80);
+let targetX = heartX;
+let targetY = heartY;
 
 function moveHeart() {
-  const x = Math.random() * (window.innerWidth - 80);
-  const y = Math.random() * (window.innerHeight - 80);
-  heart.style.left = x + 'px';
-  heart.style.top = y + 'px';
+  targetX = Math.random() * (window.innerWidth - 80);
+  targetY = Math.random() * (window.innerHeight - 80);
 }
 
-// плавное движение каждые 2 секунды
-setInterval(moveHeart, 2000);
-moveHeart();
+function animateHeart() {
+  heartX += (targetX - heartX) * 0.02;
+  heartY += (targetY - heartY) * 0.02;
+  heart.style.left = heartX + 'px';
+  heart.style.top = heartY + 'px';
+  requestAnimationFrame(animateHeart);
+}
+
+heart.onclick = () => { nextStep(); heart.style.display='none'; }
+
+animateHeart();
+setInterval(moveHeart, 3000); // новая цель каждые 3 сек
 
 // шаги при кликах
 function nextStep() {
@@ -129,7 +171,7 @@ function nextStep() {
   }
 }
 
-// показать кнопки "правда" / "милота"
+// показать кнопки "правда"/"милота"
 function showChoices() {
   textBox.textContent = '';
   overlay.style.display = 'flex';
@@ -148,20 +190,19 @@ function question(type) {
     askQuestion('как думаешь, что я сейчас делаю?', [
       {text:'бездельничаю', resp:'неее'},
       {text:'сплю', resp:'без тебя не хочу'},
-      {text:'рисую', resp:'седня не'},
-      {text:'думаю о тебе', resp:'ну конечно!! умничка.'}
-    ], () => showChoices());
+      {text:'рисую', resp:'сегодня не'},
+      {text:'думаю о тебе', resp:'ну конечно!! умничка.', correct:true}
+    ], () => { milotaDone = true; checkFinal(); });
   } else if(type === 'правда') {
     askQuestion('как думаешь, что я люблю больше всего на свете?', [
       {text:'собачек', resp:'я и вправду их очень люблю, но не больше всего'},
       {text:'немецкую культуру', resp:'она конечно мне очень нравится, только есть кое что получше'},
       {text:'белого монстра', resp:'он вкусный, но вредный'},
-      {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал'}
-    ], () => showChoices());
+      {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал', correct:true}
+    ], () => { pravdaDone = true; checkFinal(); });
   }
 }
 
-// функция показа вопроса с вариантами
 function askQuestion(questionText, options, callback) {
   overlay.style.display = 'flex';
   overlay.innerHTML = `<div>${questionText}</div>`;
@@ -172,23 +213,24 @@ function askQuestion(questionText, options, callback) {
     btn.onclick = () => {
       overlay.style.display = 'none';
       typeText(opt.resp, () => {
-        if(opt.text.includes('думаю о тебе') || opt.text.includes('гски')) {
-          showChoices();
-        } else {
-          askQuestion(questionText, options, callback);
-        }
+        document.body.onclick = () => { 
+          document.body.onclick = null; 
+          overlay.style.display = 'flex'; 
+          askQuestion(questionText, options, callback); 
+        };
       });
+      if(opt.correct) callback();
     };
     overlay.appendChild(btn);
   });
 }
 
-// клик по сердечку
-heart.onclick = () => { 
-  nextStep(); 
-  heart.style.display = 'none'; 
+// проверка финала
+function checkFinal() {
+  if(milotaDone && pravdaDone) {
+    typeText('ᴋонᴇц! нᴀдᴇюᴄь ᴛᴇбᴇ ϶ᴛᴀ иᴦᴩᴀ ᴨонᴩᴀʙиᴧᴀᴄь и ᴨодняᴧᴀ нᴀᴄᴛᴩоᴇниᴇ, я очᴇнь ᴄᴛᴀᴩᴀᴧᴄя', null, true);
+  }
 }
 </script>
-
 </body>
 </html>
