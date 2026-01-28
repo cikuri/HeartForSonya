@@ -13,81 +13,70 @@ body {
   background: #ffe6f0;
   overflow: hidden;
   height: 100vh;
-  user-select: none;
-  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #bg {
   position: absolute;
-  width: 200%;
-  height: 200%;
-  background-image: 
-    radial-gradient(pink 10%, transparent 10%), 
-    radial-gradient(pink 10%, transparent 10%);
-  background-size: 50px 50px;
-  background-position: 0 0, 25px 25px;
-  animation: moveBG 60s linear infinite;
+  width: 100%; height: 100%;
+  background-image: radial-gradient(pink 10%, transparent 10%);
+  background-size: 30px 30px;
   z-index: -1;
 }
 
-@keyframes moveBG {
-  0% { transform: translate(0,0); }
-  100% { transform: translate(-50px,-50px); }
-}
-
-svg#heart {
-  width: 80px;
-  height: 80px;
+#heart {
+  width: 60px;
+  height: 60px;
   position: absolute;
   cursor: pointer;
-  z-index: 999;
+  z-index: 1000;
+  filter: drop-shadow(0 0 10px rgba(255,100,100,0.5));
 }
 
 #textBox {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70%;
+  width: 85%;
   text-align: center;
-  font-size: 1.1em;
+  font-size: 14px;
+  line-height: 1.6;
   color: #330000;
+  z-index: 10;
   pointer-events: none;
-  white-space: pre-line;
 }
 
 #overlay {
-  position: absolute;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.3);
-  display: flex;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 230, 240, 0.9);
+  display: none;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #fff;
-  font-size: 1.5em;
-  flex-direction: column;
-  display: none;
-  z-index: 500;
+  z-index: 2000;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .btn {
   margin: 10px;
-  padding: 12px 24px;
-  font-size: 1em;
+  padding: 15px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
   cursor: pointer;
-  border: none;
-  border-radius: 10px;
-  background: pink;
+  border: 4px solid #330000;
+  background: #ffb3d1;
   color: #330000;
 }
 
 #footerText {
   position: absolute;
-  bottom: 5px;
-  right: 10px;
-  font-size: 0.6em;
-  color: #330000;
-  z-index: 1000;
+  bottom: 15px;
+  width: 100%;
+  text-align: center;
+  font-size: 8px;
+  color: #ff85a2;
 }
 </style>
 </head>
@@ -95,10 +84,10 @@ svg#heart {
 <div id="bg"></div>
 
 <svg id="heart" viewBox="0 0 32 29.6">
-  <path fill="pink" d="M23.6,0C21.4,0,19.4,1.7,18,3.7C16.6,1.7,14.6,0,12.4,0C7.6,0,4,3.6,4,8.4c0,5.7,12,16.6,12,16.6s12-10.9,12-16.6C28,3.6,24.4,0,23.6,0z"/>
+  <path fill="#ff4d6d" d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,16,21.2,16,21.2s16-11.8,16-21.2C32,3.8,28.2,0,23.6,0z"/>
 </svg>
 
-<div id="textBox"></div>
+<div id="textBox">Поймай моё сердечко...</div>
 <div id="overlay"></div>
 <div id="footerText">special for София Мяуковна</div>
 
@@ -110,131 +99,110 @@ const overlay = document.getElementById('overlay');
 let step = 0;
 let milotaDone = false;
 let pravdaDone = false;
-let waitingForClick = false;
+let canClick = true;
 
-// Печатающий текст
+// Плавное движение
+let posX = Math.random() * (window.innerWidth - 60);
+let posY = Math.random() * (window.innerHeight - 60);
+let velX = 2;
+let velY = 2;
+
+function animate() {
+  if (heart.style.display !== 'none') {
+    posX += velX;
+    posY += velY;
+
+    if (posX <= 0 || posX >= window.innerWidth - 60) velX *= -1;
+    if (posY <= 0 || posY >= window.innerHeight - 60) velY *= -1;
+
+    heart.style.left = posX + 'px';
+    heart.style.top = posY + 'px';
+    requestAnimationFrame(animate);
+  }
+}
+animate();
+
 function typeText(text, callback) {
   textBox.textContent = '';
   let i = 0;
-  waitingForClick = false;
   const interval = setInterval(() => {
     textBox.textContent += text[i];
     i++;
     if(i >= text.length) {
       clearInterval(interval);
-      waitingForClick = true;
-      if(callback) callback();
+      setTimeout(() => { if(callback) callback(); }, 1000);
     }
-  }, 66);
+  }, 50);
 }
 
-// Движение сердца
-let heartX = Math.random()*(window.innerWidth-80);
-let heartY = Math.random()*(window.innerHeight-80);
-let targetX = heartX;
-let targetY = heartY;
-
-function moveHeart() { 
-  targetX = Math.random()*(window.innerWidth-80);
-  targetY = Math.random()*(window.innerHeight-80);
-}
-function animateHeart() {
-  heartX += (targetX-heartX)*0.02;
-  heartY += (targetY-heartY)*0.02;
-  heart.style.left = heartX+'px';
-  heart.style.top = heartY+'px';
-  requestAnimationFrame(animateHeart);
-}
-animateHeart();
-setInterval(moveHeart, 3000);
-
-// Клики
-heart.addEventListener('click', ()=>{
-  if(!waitingForClick) return;
-  nextStep(); 
-  heart.style.display='none';
+heart.addEventListener('click', () => {
+  heart.style.display = 'none';
+  nextStep();
 });
 
-document.body.addEventListener('click', ()=>{
-  if(waitingForClick){
-    waitingForClick = false;
-    nextStep();
-  }
-});
-
-function nextStep(){
+function nextStep() {
   step++;
-  if(step===1){
-    overlay.style.display='none';
-    typeText('ой, ты поймала мое сердечко!');
-  } else if(step===2){
-    typeText('ну... хорошо... можешь оставить его у себя\n(пожалуйста)');
-  } else if(step===3){
-    showChoices();
+  if (step === 1) {
+    typeText('Ой! Ты поймала моё сердечко!', () => nextStep());
+  } else if (step === 2) {
+    typeText('Оставь его себе... пожалуйста.', () => showChoices());
   }
 }
 
-// Кнопки
-function showChoices(){
-  textBox.textContent='';
-  overlay.style.display='flex';
-  overlay.innerHTML = `
-    <div>Выбери:</div>
-    <button class="btn" onclick="question('милота')">милота</button>
-    <button class="btn" onclick="question('правда')">правда</button>
-  `;
-}
-
-// Вопросы
-function question(type){
-  overlay.style.display='none';
-  overlay.innerHTML='';
-  if(type==='милота'){
-    askQuestion('как думаешь, что я сейчас делаю?', [
-      {text:'бездельничаю', resp:'неее'},
-      {text:'сплю', resp:'без тебя не хочу'},
-      {text:'рисую', resp:'седня не'},
-      {text:'думаю о тебе', resp:'ну конечно!! умничка.', correct:true}
-    ], ()=>{ milotaDone=true; showChoices(); });
-  } else if(type==='правда'){
-    askQuestion('как думаешь, что я люблю больше всего на свете?', [
-      {text:'собачек', resp:'я и вправду их очень люблю, но не больше всего'},
-      {text:'немецкую культуру', resp:'она конечно мне очень нравится, только есть кое что получше'},
-      {text:'белого монстра', resp:'он вкусный, но вредный'},
-      {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда-либо слышал', correct:true}
-    ], ()=>{ pravdaDone=true; showChoices(); });
+function showChoices() {
+  if (milotaDone && pravdaDone) {
+    typeText('Конец! Надеюсь, тебе понравилось. Я очень старался! ❤️');
+    return;
+  }
+  
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<div style="margin-bottom:20px">Выбери:</div>';
+  
+  if (!milotaDone) {
+    const b1 = document.createElement('button');
+    b1.className = 'btn'; b1.textContent = 'милота';
+    b1.onclick = () => question('милота');
+    overlay.appendChild(b1);
+  }
+  if (!pravdaDone) {
+    const b2 = document.createElement('button');
+    b2.className = 'btn'; b2.textContent = 'правда';
+    b2.onclick = () => question('правда');
+    overlay.appendChild(b2);
   }
 }
 
-function askQuestion(questionText, options, callback){
-  overlay.style.display='flex';
-  overlay.innerHTML = `<div>${questionText}</div>`;
-  options.forEach(opt=>{
+function question(type) {
+  overlay.innerHTML = '';
+  if (type === 'милота') {
+    ask('как думаешь, что я сейчас делаю?', [
+      {t:'бездельничаю', r:'неее...'},
+      {t:'сплю', r:'без тебя не хочу'},
+      {t:'думаю о тебе', r:'конечно! умничка.', c:true}
+    ], () => { milotaDone = true; showChoices(); });
+  } else {
+    ask('что я люблю больше всего?', [
+      {t:'монстр', r:'вкусно, но нет'},
+      {t:'гс-ки твои', r:'да! твой голос — лучшее на свете.', c:true}
+    ], () => { pravdaDone = true; showChoices(); });
+  }
+}
+
+function ask(qText, options, callback) {
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<div style="margin-bottom:20px">${qText}</div>`;
+  options.forEach(opt => {
     const btn = document.createElement('button');
-    btn.className='btn';
-    btn.textContent=opt.text;
-    btn.addEventListener('click', ()=>{
-      overlay.style.display='none';
-      typeText(opt.resp, ()=>{
-        document.body.addEventListener('click', function handler(){
-          document.body.removeEventListener('click', handler);
-          if(!opt.correct){
-            askQuestion(questionText, options, callback);
-          } else {
-            callback();
-          }
-        });
+    btn.className = 'btn';
+    btn.textContent = opt.t;
+    btn.onclick = () => {
+      overlay.style.display = 'none';
+      typeText(opt.r, () => {
+        if (opt.c) callback(); else ask(qText, options, callback);
       });
-    });
+    };
     overlay.appendChild(btn);
   });
-}
-
-// Финальный текст
-function checkFinal(){
-  if(milotaDone && pravdaDone){
-    typeText('конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался');
-  }
 }
 </script>
 </body>
