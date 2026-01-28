@@ -89,18 +89,11 @@ svg#heart {
   color: #330000;
   z-index: 1000;
 }
-
-.finalText {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1.2em;
-}
 </style>
 </head>
 <body>
-
 <div id="bg"></div>
 
-<!-- Возвращаем изначальное сердце -->
 <svg id="heart" viewBox="0 0 32 29.6">
   <path fill="pink" d="M23.6,0C21.4,0,19.4,1.7,18,3.7C16.6,1.7,14.6,0,12.4,0C7.6,0,4,3.6,4,8.4c0,5.7,12,16.6,12,16.6s12-10.9,12-16.6C28,3.6,24.4,0,23.6,0z"/>
 </svg>
@@ -132,10 +125,10 @@ function typeText(text, callback) {
       waitingForClick = true;
       if(callback) callback();
     }
-  }, 66); // скорость печати
+  }, 66);
 }
 
-// Движение сердца (плавное)
+// Движение сердца
 let heartX = Math.random()*(window.innerWidth-80);
 let heartY = Math.random()*(window.innerHeight-80);
 let targetX = heartX;
@@ -173,9 +166,9 @@ function nextStep(){
   step++;
   if(step===1){
     overlay.style.display='none';
-    typeText('ой, ты поймала мое сердечко!', ()=>{});
+    typeText('ой, ты поймала мое сердечко!');
   } else if(step===2){
-    typeText('ну... хорошо... можешь оставить его у себя\n(пожалуйста)', ()=>{});
+    typeText('ну... хорошо... можешь оставить его у себя\n(пожалуйста)');
   } else if(step===3){
     showChoices();
   }
@@ -202,14 +195,14 @@ function question(type){
       {text:'сплю', resp:'без тебя не хочу'},
       {text:'рисую', resp:'седня не'},
       {text:'думаю о тебе', resp:'ну конечно!! умничка.', correct:true}
-    ], ()=>{ milotaDone=true; checkFinal(); });
+    ], ()=>{ milotaDone=true; showChoices(); });
   } else if(type==='правда'){
     askQuestion('как думаешь, что я люблю больше всего на свете?', [
       {text:'собачек', resp:'я и вправду их очень люблю, но не больше всего'},
       {text:'немецкую культуру', resp:'она конечно мне очень нравится, только есть кое что получше'},
       {text:'белого монстра', resp:'он вкусный, но вредный'},
       {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда-либо слышал', correct:true}
-    ], ()=>{ pravdaDone=true; checkFinal(); });
+    ], ()=>{ pravdaDone=true; showChoices(); });
   }
 }
 
@@ -228,11 +221,10 @@ function askQuestion(questionText, options, callback){
           if(!opt.correct){
             askQuestion(questionText, options, callback);
           } else {
-            showChoices();
+            callback();
           }
         });
       });
-      if(opt.correct) callback();
     });
     overlay.appendChild(btn);
   });
