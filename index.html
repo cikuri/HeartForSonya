@@ -41,7 +41,7 @@ svg#heart {
   position: absolute;
   cursor: pointer;
   transform-origin: center center;
-  z-index: 2;
+  z-index: 999;
 }
 
 #textBox {
@@ -67,6 +67,7 @@ svg#heart {
   font-size: 1.5em;
   flex-direction: column;
   display: none;
+  z-index: 500;
 }
 
 .btn {
@@ -92,7 +93,6 @@ svg#heart {
   font-family: 'Press Start 2P', monospace;
   font-size: 1.2em;
 }
-
 </style>
 </head>
 <body>
@@ -116,6 +116,7 @@ let step = 0;
 let milotaDone = false;
 let pravdaDone = false;
 
+// Печатающий текст
 function typeText(text, callback) {
   textBox.textContent = '';
   let i = 0;
@@ -126,7 +127,7 @@ function typeText(text, callback) {
   }, 66);
 }
 
-// движение сердца
+// Движение сердца
 let heartX = Math.random()*(window.innerWidth-80);
 let heartY = Math.random()*(window.innerHeight-80);
 let targetX = heartX;
@@ -146,25 +147,36 @@ function animateHeart() {
   heart.style.transform = `rotate(${angle}deg)`;
   requestAnimationFrame(animateHeart);
 }
-
 animateHeart();
 setInterval(moveHeart, 3000);
 
-heart.onclick = ()=>{ nextStep(); heart.style.display='none'; }
+// Следующие шаги
+heart.addEventListener('click', ()=>{
+  nextStep(); 
+  heart.style.display='none';
+});
+
 function nextStep(){
   step++;
   if(step===1){
     overlay.style.display='none';
     typeText('ой, ты поймала мое сердечко!', ()=>{
-      document.body.onclick = ()=>{ nextStep(); document.body.onclick=null; };
+      document.body.addEventListener('click', function handler(){ 
+        nextStep(); 
+        document.body.removeEventListener('click', handler); 
+      });
     });
   } else if(step===2){
     typeText('ну... хорошо... можешь оставить его у себя\n(пожалуйста)', ()=>{
-      document.body.onclick = ()=>{ showChoices(); document.body.onclick=null; };
+      document.body.addEventListener('click', function handler(){ 
+        showChoices(); 
+        document.body.removeEventListener('click', handler); 
+      });
     });
   }
 }
 
+// Кнопки "милота" / "правда"
 function showChoices(){
   textBox.textContent='';
   overlay.style.display='flex';
@@ -175,6 +187,7 @@ function showChoices(){
   `;
 }
 
+// Вопросы
 function question(type){
   overlay.style.display='none';
   overlay.innerHTML='';
@@ -190,7 +203,7 @@ function question(type){
       {text:'собачек', resp:'я и вправду их очень люблю, но не больше всего'},
       {text:'немецкую культуру', resp:'она конечно мне очень нравится, только есть кое что получше'},
       {text:'белого монстра', resp:'он вкусный, но вредный'},
-      {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал', correct:true}
+      {text:'слушать твои гски', resp:'в точку. я просто обожаю твой твой голос, это лучшее что я когда-либо слышал', correct:true}
     ], ()=>{ pravdaDone=true; checkFinal(); });
   }
 }
@@ -202,29 +215,29 @@ function askQuestion(questionText, options, callback){
     const btn = document.createElement('button');
     btn.className='btn';
     btn.textContent=opt.text;
-    btn.onclick=()=>{
+    btn.addEventListener('click', ()=>{
       overlay.style.display='none';
       typeText(opt.resp, ()=>{
-        document.body.onclick = ()=>{
-          document.body.onclick=null;
+        document.body.addEventListener('click', function handler(){
+          document.body.removeEventListener('click', handler);
           if(!opt.correct){
             overlay.style.display='flex';
             askQuestion(questionText, options, callback);
           } else {
             showChoices(); 
           }
-        };
+        });
       });
       if(opt.correct) callback();
-    };
+    });
     overlay.appendChild(btn);
   });
 }
 
-// финальный текст
+// Финальный текст
 function checkFinal(){
   if(milotaDone && pravdaDone){
-    typeText('ᴋонᴇц! нᴀдᴇюᴄь ᴛᴇбᴇ ϶ᴛᴀ иᴦᴩᴀ ᴨонᴩᴀʙиᴧᴀᴄь и ᴨодняᴧᴀ нᴀᴄᴛᴩоᴇниᴇ, я очᴇнь ᴄᴛᴀᴩᴀᴧᴀᴄь');
+    typeText('ᴋонᴇц! нᴀдᴇюᴄь ᴛᴇбᴇ ϶ᴛᴀ иᴦᴩᴀ ᴨонᴩᴀʙиᴧᴀᴄь и ᴨодняᴧᴀ нᴀᴄᴛᴩоᴇниᴇ, я очᴇнь ᴄᴛᴀᴩᴀᴧᴄя');
   }
 }
 </script>
