@@ -55,7 +55,6 @@ svg#heart {
   color: #330000;
   pointer-events: none;
   white-space: pre-line;
-  font-family: 'Press Start 2P', monospace;
 }
 
 #overlay {
@@ -87,8 +86,9 @@ svg#heart {
   position: absolute;
   bottom: 5px;
   right: 10px;
-  font-size: 0.5em;
+  font-size: 0.6em;
   color: #330000;
+  z-index: 1000;
 }
 
 .finalText {
@@ -101,8 +101,10 @@ svg#heart {
 
 <div id="bg"></div>
 
+<!-- Идеальное симметричное сердце SVG -->
 <svg id="heart" viewBox="0 0 32 29.6">
-  <path fill="pink" d="M23.6,0C21.4,0,19.4,1.7,18,3.7C16.6,1.7,14.6,0,12.4,0C7.6,0,4,3.6,4,8.4c0,5.7,12,16.6,12,16.6s12-10.9,12-16.6C28,3.6,24.4,0,23.6,0z"/>
+  <path fill="pink" d="M23.6,0c-2,0-3.9,1.7-5.1,3.7C16.3,1.7,14.4,0,12.4,0C7.6,0,4,3.6,4,8.4c0,5.7,12,16.6,12,16.6s12-10.9,12-16.6
+    C28,3.6,24.4,0,23.6,0z"/>
 </svg>
 
 <div id="textBox"></div>
@@ -226,7 +228,6 @@ function askQuestion(questionText, options, callback){
     btn.addEventListener('click', ()=>{
       overlay.style.display='none';
       typeText(opt.resp, ()=>{
-        // теперь текст исчезает только после нового клика
         document.body.addEventListener('click', function handler(){
           document.body.removeEventListener('click', handler);
           if(!opt.correct){
@@ -245,7 +246,7 @@ function askQuestion(questionText, options, callback){
 // Финальный текст
 function checkFinal(){
   if(milotaDone && pravdaDone){
-    typeText('конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался');
+    typeText('ᴋонᴇц! нᴀдᴇюᴄь ᴛᴇбᴇ ϶ᴛᴀ иᴦᴩᴀ ᴨонᴩᴀʙиᴧᴀᴄь и ᴨодняᴧᴀ нᴀᴄᴛᴩоᴇниᴇ, я очᴇнь ᴄᴛᴀᴩᴀᴧᴀᴄь');
   }
 }
 </script>
