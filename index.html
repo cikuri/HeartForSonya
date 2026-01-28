@@ -18,23 +18,25 @@ body {
 #bg {
   position: absolute; top:0; left:0; width: 100%; height: 100%;
   background-image: radial-gradient(#ffb3d1 15%, transparent 15%);
-  background-size: 40px 40px;
-  z-index: 1;
+  background-size: 40px 40px; z-index: 1;
 }
 
 #heart {
-  position: absolute; font-size: 50px;
-  cursor: pointer; z-index: 9999;
-  user-select: none; line-height: 1;
+  position: absolute; font-size: 50px; cursor: pointer;
+  z-index: 9999; user-select: none; line-height: 1;
 }
 
 #textBox {
-  position: absolute; top: 45%; left: 50%;
+  position: absolute; top: 40%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 85%; text-align: center;
-  font-size: 14px; color: #330000;
-  z-index: 10; pointer-events: none;
-  line-height: 1.8; white-space: pre-line;
+  width: 85%; text-align: center; font-size: 14px;
+  color: #330000; z-index: 10; pointer-events: none;
+  line-height: 1.8;
+}
+
+.sub-text {
+  color: rgba(51, 0, 0, 0.5); /* Затемнение для (пожалуйста) */
+  font-size: 10px; display: block; margin-top: 10px;
 }
 
 #overlay {
@@ -42,15 +44,15 @@ body {
   background: rgba(255, 230, 240, 0.95);
   display: none; flex-direction: column;
   justify-content: center; align-items: center;
-  z-index: 10000; padding: 20px; box-sizing: border-box;
+  z-index: 10000; padding: 15px; box-sizing: border-box;
 }
 
 .btn {
-  margin: 5px; padding: 10px;
+  margin: 6px; padding: 12px;
   font-family: 'Press Start 2P', monospace;
   font-size: 9px; border: 4px solid #330000;
   background: #ffb3d1; color: #330000;
-  cursor: pointer; width: 100%; max-width: 320px;
+  cursor: pointer; width: 100%; max-width: 350px;
 }
 
 #footerText {
@@ -73,7 +75,9 @@ const overlay = document.getElementById('overlay');
 
 let milotaDone = false;
 let pravdaDone = false;
+let step = 0;
 
+// Движение сердечка
 let posX = Math.random() * (window.innerWidth - 70);
 let posY = Math.random() * (window.innerHeight - 70);
 let dx = 2.5; let dy = 2.5;
@@ -83,3 +87,95 @@ function move() {
   if (posX <= 0 || posX >= window.innerWidth - 60) dx *= -1;
   if (posY <= 0 || posY >= window.innerHeight - 60) dy *= -1;
   heart.style.left = posX + 'px'; heart.style.top = posY + 'px';
+  requestAnimationFrame(move);
+}
+move();
+
+// Эффект печати
+function type(text, isSubText = false, cb) {
+  if (!isSubText) textBox.innerHTML = '';
+  let i = 0;
+  const container = isSubText ? document.createElement('span') : textBox;
+  if (isSubText) {
+    container.className = 'sub-text';
+    textBox.appendChild(container);
+  }
+  
+  const t = setInterval(() => {
+    container.innerHTML += text[i];
+    i++;
+    if(i >= text.length) {
+      clearInterval(t);
+      // После того как текст напечатан, ждем клика для продолжения
+      document.body.onclick = () => {
+        document.body.onclick = null;
+        if(cb) cb();
+      };
+    }
+  }, 60);
+}
+
+// 1. Поимка сердца
+heart.onclick = (e) => {
+  e.stopPropagation();
+  heart.style.display = 'none';
+  type('ой, ты поймала мое сердечко!', false, () => {
+    // 2. Вторая фраза с затуханием
+    type('ну... хорошо... можешь оставить его у себя', false, () => {
+       type('(пожалуйста)', true, () => showMenu());
+    });
+  });
+};
+
+function showMenu() {
+  if (milotaDone && pravdaDone) {
+    textBox.innerHTML = "конец! надеюсь тебе эта игра понравилась и подняла настроение, я очень старался";
+    return;
+  }
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<p style="color:#330000; margin-bottom:15px;">Выбери:</p>';
+  if(!milotaDone) addBtn('милота', () => startQuest('милота'));
+  if(!pravdaDone) addBtn('правда', () => startQuest('правда'));
+}
+
+function addBtn(txt, fn) {
+  const b = document.createElement('button');
+  b.className = 'btn'; b.textContent = txt; b.onclick = fn;
+  overlay.appendChild(b);
+}
+
+function startQuest(typeQuest) {
+  overlay.style.display = 'none';
+  if(typeQuest === 'милота') {
+    ask('как думаешь, что я сейчас делаю?', [
+      {t:'1. бездельничаю', r:'неее'},
+      {t:'2. сплю', r:'без тебя не хочу'},
+      {t:'3. рисую', r:'седня не'},
+      {t:'4. думаю о тебе', r:'ну конечно!! умничка.', c:true}
+    ], () => { milotaDone = true; showMenu(); });
+  } else {
+    ask('как думаешь, что я люблю больше всего на свете?', [
+      {t:'1. собачек', r:'я и вправду их очень люблю, но не больше всего'},
+      {t:'2. немецкую культуру', r:'она конечно мне очень нравится, только есть кое что получше'},
+      {t:'3. белого монстра', r:'он вкусный, но вредный'},
+      {t:'4. слушать твои гски', r:'в точку. я просто обожаю твой твой голос, это лучшее что я когда либо слышал', c:true}
+    ], () => { pravdaDone = true; showMenu(); });
+  }
+}
+
+function ask(q, opts, cb) {
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<p style="color:#330000; padding:10px; text-align:center; font-size:11px;">${q}</p>`;
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = o.t;
+    b.onclick = () => {
+      overlay.style.display = 'none';
+      type(o.r, false, () => o.c ? cb() : ask(q, opts, cb));
+    };
+    overlay.appendChild(b);
+  });
+}
+</script>
+</body>
+</html>
