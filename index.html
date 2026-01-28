@@ -3,38 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Special for София Мяуковна 💖</title>
+<title>Для Софии 💖</title>
 <style>
   body {
     margin: 0;
-    font-family: sans-serif;
-    background: #ffe6f0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ffe6f0, #fff0e6);
     overflow: hidden;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     user-select: none;
   }
+
   #heart {
     width: 80px;
     height: 80px;
     background: red;
-    clip-path: polygon(50% 0%, 61% 11%, 75% 10%, 88% 23%, 88% 39%, 75% 57%, 50% 80%, 25% 57%, 12% 39%, 12% 23%, 25% 10%, 39% 11%);
+    clip-path: polygon(
+      50% 0%, 61% 11%, 75% 10%, 88% 23%, 88% 39%, 
+      75% 57%, 50% 80%, 25% 57%, 12% 39%, 12% 23%, 
+      25% 10%, 39% 11%
+    );
     position: absolute;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 1s ease;
   }
+
   #textBox {
     position: absolute;
-    bottom: 20%;
+    bottom: 15%;
     width: 80%;
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1.4em;
     color: #330000;
     pointer-events: none;
+    white-space: pre-line;
   }
-  .hidden { display: none; }
+
   #overlay {
     position: absolute;
     width: 100%; height: 100%;
@@ -45,10 +52,12 @@
     color: #fff;
     font-size: 1.5em;
     flex-direction: column;
+    display: none;
   }
+
   .btn {
     margin: 10px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 1em;
     cursor: pointer;
     border: none;
@@ -56,44 +65,60 @@
     background: pink;
     color: #330000;
   }
+
+  #footerText {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-size: 0.8em;
+    color: #330000;
+  }
+
 </style>
 </head>
 <body>
 
 <div id="heart"></div>
 <div id="textBox"></div>
-<div id="overlay" class="hidden"></div>
+<div id="overlay"></div>
+<div id="footerText">special for София Мяуковна</div>
 
 <script>
-let step = 0;
 const heart = document.getElementById('heart');
 const textBox = document.getElementById('textBox');
 const overlay = document.getElementById('overlay');
 
+let step = 0;
+
 function typeText(text, callback) {
   textBox.textContent = '';
   let i = 0;
-  let interval = setInterval(() => {
+  const interval = setInterval(() => {
     textBox.textContent += text[i];
     i++;
     if (i >= text.length) {
       clearInterval(interval);
-      if (callback) callback();
+      if(callback) callback();
     }
   }, 50);
 }
 
-function randomPos() {
+function moveHeart() {
   const x = Math.random() * (window.innerWidth - 80);
   const y = Math.random() * (window.innerHeight - 80);
   heart.style.left = x + 'px';
   heart.style.top = y + 'px';
 }
 
+// плавное движение каждые 2 секунды
+setInterval(moveHeart, 2000);
+moveHeart();
+
+// шаги при кликах
 function nextStep() {
   step++;
   if(step === 1) {
-    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
     typeText('ой, ты поймала мое сердечко!', () => {
       document.body.onclick = () => { nextStep(); document.body.onclick = null; };
     });
@@ -104,9 +129,10 @@ function nextStep() {
   }
 }
 
+// показать кнопки "правда" / "милота"
 function showChoices() {
   textBox.textContent = '';
-  overlay.classList.remove('hidden');
+  overlay.style.display = 'flex';
   overlay.innerHTML = `
     <div>Выбери:</div>
     <button class="btn" onclick="question('милота')">милота</button>
@@ -114,9 +140,10 @@ function showChoices() {
   `;
 }
 
+// логика вопросов
 function question(type) {
+  overlay.style.display = 'none';
   overlay.innerHTML = '';
-  overlay.classList.add('hidden');
   if(type === 'милота') {
     askQuestion('как думаешь, что я сейчас делаю?', [
       {text:'бездельничаю', resp:'неее'},
@@ -134,19 +161,21 @@ function question(type) {
   }
 }
 
-function askQuestion(question, options, callback) {
-  overlay.classList.remove('hidden');
-  overlay.innerHTML = `<div>${question}</div>`;
+// функция показа вопроса с вариантами
+function askQuestion(questionText, options, callback) {
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<div>${questionText}</div>`;
   options.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'btn';
     btn.textContent = opt.text;
     btn.onclick = () => {
-      typeText(opt.resp, () => { 
+      overlay.style.display = 'none';
+      typeText(opt.resp, () => {
         if(opt.text.includes('думаю о тебе') || opt.text.includes('гски')) {
           showChoices();
         } else {
-          askQuestion(question, options, callback);
+          askQuestion(questionText, options, callback);
         }
       });
     };
@@ -154,9 +183,11 @@ function askQuestion(question, options, callback) {
   });
 }
 
-heart.onclick = () => { nextStep(); heart.style.display='none'; }
-randomPos();
-setInterval(randomPos, 1500);
+// клик по сердечку
+heart.onclick = () => { 
+  nextStep(); 
+  heart.style.display = 'none'; 
+}
 </script>
 
 </body>
