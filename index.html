@@ -26,6 +26,7 @@ body {
 #heart {
   position: absolute; font-size: 50px; cursor: pointer;
   z-index: 9999; user-select: none; line-height: 1;
+  left: 50px; top: 50px;
 }
 
 #textBox {
@@ -63,7 +64,7 @@ body {
 }
 
 #finalHint {
-  position: absolute; top: 25%; left: 50%;
+  position: absolute; top: 10%; left: 50%;
   transform: translateX(-50%);
   font-size: 10px; color: #ff4d6d; text-align: center;
   width: 80%; opacity: 0; transition: opacity 0.5s;
@@ -117,9 +118,10 @@ const playWinSound = () => {
   setTimeout(() => playTone(783, 'square', 0.3, 0.05), 200);
 };
 
-let posX = Math.random() * (window.innerWidth - 70);
-let posY = Math.random() * (window.innerHeight - 70);
-let dx = 2.5; let dy = 2.5;
+let posX = 50; 
+let posY = 50; 
+let dx = 2.5; 
+let dy = 2.5;
 
 function move() {
   if (isGameOver) return;
@@ -151,7 +153,7 @@ function type(text, isSubText = false, cb) {
         if(cb) cb();
       };
     }
-  }, 60);
+  }, 50);
 }
 
 heart.onclick = (e) => {
