@@ -78,6 +78,7 @@ const overlay = document.getElementById('overlay');
 
 let milotaDone = false;
 let pravdaDone = false;
+let isGameOver = false; // Переменная, чтобы остановить сердце в конце
 
 // Звуковой движок
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -112,6 +113,7 @@ let posY = Math.random() * (window.innerHeight - 70);
 let dx = 2.5; let dy = 2.5;
 
 function move() {
+  if (isGameOver) return; // Останавливаем движение, когда игра закончена
   posX += dx; posY += dy;
   if (posX <= 0 || posX >= window.innerWidth - 60) dx *= -1;
   if (posY <= 0 || posY >= window.innerHeight - 60) dy *= -1;
@@ -143,18 +145,14 @@ function type(text, isSubText = false, cb) {
   }, 60);
 }
 
-// РАЗДЕЛЕНИЕ ФРАЗ ЗДЕСЬ
 heart.onclick = (e) => {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   e.stopPropagation();
   heart.style.display = 'none';
   playCatchSound(); 
   
-  // 1. Сначала просто "ой"
   type('ой', false, () => {
-    // 2. Потом "ты поймала мое сердечко!"
     type('ты поймала мое сердечко!', false, () => {
-      // 3. Потом "ну... хорошо..."
       type('ну... хорошо... можешь оставить его себе', false, () => {
          type('(пожалуйста)', true, () => showMenu());
       });
@@ -171,7 +169,18 @@ function showMenu() {
       origin: { y: 0.6 },
       colors: ['#ff4d6d', '#ffb3d1', '#ffffff']
     });
-    textBox.innerHTML = "конец! надеюсь тебе эта мини-игра понравилась и подняла настроение, я очень старался над ней💓";
+
+    // Финальные действия:
+    isGameOver = true; // Стоп анимация
+    textBox.innerHTML = "конец! надеюсь тебе эта мини-игра понравилась и подняла настроение, я очень старался над ней"; // Убрали 💓
+    
+    // Ставим сердце под текст
+    heart.style.display = 'block';
+    heart.style.left = '50%';
+    heart.style.top = '60%'; // Чуть ниже центра текста
+    heart.style.transform = 'translateX(-50%)';
+    heart.style.cursor = 'default';
+    
     return;
   }
   overlay.style.display = 'flex';
