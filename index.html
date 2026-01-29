@@ -7,83 +7,239 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-body { margin: 0; padding: 0; font-family: 'Press Start 2P', monospace; background: #ffe6f0; overflow: hidden; height: 100vh; width: 100vw; touch-action: manipulation; }
-#bg { position: absolute; top:0; left:0; width: 100%; height: 100%; background-image: radial-gradient(#ffb3d1 15%, transparent 15%); background-size: 40px 40px; z-index: 1; }
-#heart { position: absolute; font-size: 50px; cursor: pointer; z-index: 9999; user-select: none; line-height: 1; }
-#textBox { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 85%; text-align: center; font-size: 11px; color: #330000; z-index: 10; pointer-events: none; line-height: 1.8; }
-.sub-text { color: rgba(51, 0, 0, 0.5); font-size: 10px; display: block; margin-top: 10px; }
-#overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 230, 240, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; padding: 15px; box-sizing: border-box; }
-.btn { margin: 6px; padding: 12px; font-family: 'Press Start 2P', monospace; font-size: 9px; border: 4px solid #330000; background: #ffb3d1; color: #330000; cursor: pointer; width: 100%; max-width: 350px; }
-#footerText { position: absolute; bottom: 15px; right: 15px; font-size: 9px; color: #ff4d6d; z-index: 100; }
-#finalHint { position: absolute; top: 25%; left: 50%; transform: translateX(-50%); font-size: 10px; color: #ff4d6d; text-align: center; width: 80%; opacity: 0; transition: opacity 0.5s; pointer-events: none; z-index: 20; }
+
+body {
+  margin: 0; padding: 0;
+  font-family: 'Press Start 2P', monospace;
+  background: #ffe6f0;
+  overflow: hidden;
+  height: 100vh; width: 100vw;
+  touch-action: manipulation;
+}
+
+#bg {
+  position: absolute; top:0; left:0; width: 100%; height: 100%;
+  background-image: radial-gradient(#ffb3d1 15%, transparent 15%);
+  background-size: 40px 40px; z-index: 1;
+}
+
+#heart {
+  position: absolute; font-size: 50px; cursor: pointer;
+  z-index: 9999; user-select: none; line-height: 1;
+}
+
+#textBox {
+  position: absolute; top: 40%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%; text-align: center; font-size: 14px;
+  color: #330000; z-index: 10; pointer-events: none;
+  line-height: 1.8;
+}
+
+.sub-text {
+  color: rgba(51, 0, 0, 0.5); 
+  font-size: 10px; display: block; margin-top: 10px;
+}
+
+#overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 230, 240, 0.95);
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  z-index: 10000; padding: 15px; box-sizing: border-box;
+}
+
+.btn {
+  margin: 6px; padding: 12px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px; border: 4px solid #330000;
+  background: #ffb3d1; color: #330000;
+  cursor: pointer; width: 100%; max-width: 350px;
+}
+
+#footerText {
+  position: absolute; bottom: 15px; right: 15px;
+  font-size: 9px; color: #ff4d6d; z-index: 100;
+}
+
+#finalHint {
+  position: absolute; top: 25%; left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px; color: #ff4d6d; text-align: center;
+  width: 80%; opacity: 0; transition: opacity 0.5s;
+  pointer-events: none; z-index: 20;
+}
 </style>
 </head>
 <body>
 <div id="bg"></div>
 <div id="heart">💗</div>
-<div id="textBox"></div>
+<div id="textBox">янянянянянянян</div>
 <div id="finalHint">мое сердце уже у Тебя, не нужно его ловить</div>
+
 <div id="overlay"></div>
 <div id="footerText">special for София Мяуковна</div>
+
 <script>
 const heart = document.getElementById('heart');
 const textBox = document.getElementById('textBox');
 const overlay = document.getElementById('overlay');
 const finalHint = document.getElementById('finalHint');
-let milotaDone = false; let pravdaDone = false; let isGameOver = false;
+
+let milotaDone = false;
+let pravdaDone = false;
+let isGameOver = false;
+
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playTone(freq, type, duration, volume = 0.1) {
-  const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-  osc.type = type; osc.frequency.value = freq;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
   gain.gain.setValueAtTime(volume, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.start(); osc.stop(audioCtx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
 }
+
 const playTypeSound = () => playTone(600, 'sine', 0.05, 0.05);
 const playSelectSound = () => playTone(1000, 'sine', 0.1, 0.04);
-const playCatchSound = () => { playTone(880, 'sine', 0.4, 0.12); setTimeout(() => playTone(1108, 'sine', 0.4, 0.08), 60); };
-const playWinSound = () => { playTone(523, 'square', 0.1, 0.05); setTimeout(() => playTone(659, 'square', 0.1, 0.05), 100); setTimeout(() => playTone(783, 'square', 0.3, 0.05), 200); };
-let posX = 50; let posY = 50; let dx = 2.5; let dy = 2.5;
-function move() { if (isGameOver) return; posX += dx; posY += dy; if (posX <= 0 || posX >= window.innerWidth - 60) dx *= -1; if (posY <= 0 || posY >= window.innerHeight - 60) dy *= -1; heart.style.left = posX + 'px'; heart.style.top = posY + 'px'; requestAnimationFrame(move); }
+const playCatchSound = () => {
+  playTone(880, 'sine', 0.4, 0.12);
+  setTimeout(() => playTone(1108, 'sine', 0.4, 0.08), 60);
+};
+
+const playWinSound = () => {
+  playTone(523, 'square', 0.1, 0.05);
+  setTimeout(() => playTone(659, 'square', 0.1, 0.05), 100);
+  setTimeout(() => playTone(783, 'square', 0.3, 0.05), 200);
+};
+
+let posX = Math.random() * (window.innerWidth - 70);
+let posY = Math.random() * (window.innerHeight - 70);
+let dx = 2.5; let dy = 2.5;
+
+function move() {
+  if (isGameOver) return;
+  posX += dx; posY += dy;
+  if (posX <= 0 || posX >= window.innerWidth - 60) dx *= -1;
+  if (posY <= 0 || posY >= window.innerHeight - 60) dy *= -1;
+  heart.style.left = posX + 'px'; heart.style.top = posY + 'px';
+  requestAnimationFrame(move);
+}
 move();
+
 function type(text, isSubText = false, cb) {
   if (!isSubText) textBox.innerHTML = '';
-  let i = 0; const container = isSubText ? document.createElement('span') : textBox;
-  if (isSubText) { container.className = 'sub-text'; textBox.appendChild(container); }
-  const t = setInterval(() => { container.innerHTML += text[i]; playTypeSound(); i++; if(i >= text.length) { clearInterval(t); document.body.onclick = () => { document.body.onclick = null; if(cb) cb(); }; } }, 50);
+  let i = 0;
+  const container = isSubText ? document.createElement('span') : textBox;
+  if (isSubText) {
+    container.className = 'sub-text';
+    textBox.appendChild(container);
+  }
+  
+  const t = setInterval(() => {
+    container.innerHTML += text[i];
+    playTypeSound();
+    i++;
+    if(i >= text.length) {
+      clearInterval(t);
+      document.body.onclick = () => {
+        document.body.onclick = null;
+        if(cb) cb();
+      };
+    }
+  }, 60);
 }
+
 heart.onclick = (e) => {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   e.stopPropagation();
-  if (isGameOver) { playSelectSound(); finalHint.style.opacity = '1'; setTimeout(() => { finalHint.style.opacity = '0'; }, 3000); return; }
-  heart.style.display = 'none'; playCatchSound(); 
-  type('ой', false, () => { type('Ты поймала мое сердечко!', false, () => { type('ну... хорошо... можешь оставить его себе', false, () => { type('(пожалуйста)', true, () => showMenu()); }); }); });
+
+  if (isGameOver) {
+    playSelectSound();
+    finalHint.style.opacity = '1';
+    setTimeout(() => { finalHint.style.opacity = '0'; }, 3000);
+    return;
+  }
+  
+  heart.style.display = 'none';
+  playCatchSound(); 
+  
+  type('ой', false, () => {
+    type('Ты поймала мое сердечко!', false, () => {
+      type('ну... хорошо... можешь оставить его себе', false, () => {
+         type('(пожалуйста)', true, () => showMenu());
+      });
+    });
+  });
 };
+
 function showMenu() {
   if (milotaDone && pravdaDone) {
     playWinSound();
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ff4d6d', '#ffb3d1', '#ffffff'] });
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff4d6d', '#ffb3d1', '#ffffff']
+    });
+
     isGameOver = true;
     textBox.innerHTML = "конец! надеюсь, у меня получилось подарить Тебе пару приятных минуток и поднять настроение. я очень старался над этой игрой и учился программировать специально для Тебя, чтобы сделать этот подарок особенным.";
-    heart.style.display = 'block'; heart.style.left = '50%'; heart.style.top = '65%'; heart.style.transform = 'translateX(-50%)'; return;
+    
+    heart.style.display = 'block';
+    heart.style.left = '50%';
+    heart.style.top = '60%'; 
+    heart.style.transform = 'translateX(-50%)';
+    return;
   }
-  overlay.style.display = 'flex'; overlay.innerHTML = '<p style="color:#330000; margin-bottom:15px;">Выбери:</p>';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<p style="color:#330000; margin-bottom:15px;">Выбери:</p>';
   if(!milotaDone) addBtn('милота', () => { playSelectSound(); startQuest('милота'); });
   if(!pravdaDone) addBtn('правда', () => { playSelectSound(); startQuest('правда'); });
 }
-function addBtn(txt, fn) { const b = document.createElement('button'); b.className = 'btn'; b.textContent = txt; b.onclick = fn; overlay.appendChild(b); }
+
+function addBtn(txt, fn) {
+  const b = document.createElement('button');
+  b.className = 'btn'; b.textContent = txt; b.onclick = fn;
+  overlay.appendChild(b);
+}
+
 function startQuest(typeQuest) {
   overlay.style.display = 'none';
   if(typeQuest === 'милота') {
-    ask('как думаешь, что я сейчас делаю?', [{t:'1. бездельничаю', r:'мог бы, но мой мозг 24/7 занят мыслями об одном человеке)'}, {t:'2. сплю', r:'без Тебя не хочу'}, {t:'3. рисую', r:'сегодня я рисовал только Твой образ в своей голове'}, {t:'4. думаю о Тебе', r:'ну конечно!! что еще я могу делать, когда скучаю по Тебе? правильно - ничего', c:true}], () => { milotaDone = true; showMenu(); });
+    ask('как думаешь, что я сейчас делаю?', [
+      {t:'1. бездельничаю', r:'мог бы, но мой мозг 24/7 занят мыслями об одном человеке)'},
+      {t:'2. сплю', r:'без Тебя не хочу'},
+      {t:'3. рисую', r:'сегодня я рисовал только Твой образ в своей голове'},
+      {t:'4. думаю о Тебе', r:'ну конечно!! что еще я могу делать, когда скучаю по Тебе? правильно - ничего', c:true}
+    ], () => { milotaDone = true; showMenu(); });
   } else {
-    ask('как думаешь, что я люблю больше всего на свете?', [{t:'1. собачек', r:'я и вправду их очень люблю, но не больше всего на свете'}, {t:'2. немецкую культуру', r:'она мне очень нравится, да вот только в ней нету Тебя, так что она занимает второе место на равне с собачками'}, {t:'3. белого монстра', r:'он вкусный, но есть то, что заставляет мое сердце биться намного быстрее'}, {t:'4. твои гски', r:'в точку. я просто обожаю их переслушивать! Твой голос - лучшее, что я когда либо слышал', c:true}], () => { pravdaDone = true; showMenu(); });
+    ask('как думаешь, что я люблю больше всего на свете?', [
+      {t:'1. собачек', r:'я и вправду их очень люблю, но не больше всего на свете'},
+      {t:'2. немецкую культуру', r:'она мне очень нравится, да вот только в ней нету Тебя, так что она занимает второе место на равне с собачками'},
+      {t:'3. белого монстра', r:'он вкусный, но есть то, что заставляет мое сердце биться намного быстрее'},
+      {t:'4. твои гски', r:'в точку. я просто обожаю их переслушивать! Твой голос - лучшее, что я когда либо слышал', c:true}
+    ], () => { pravdaDone = true; showMenu(); });
   }
 }
+
 function ask(q, opts, cb) {
-  overlay.style.display = 'flex'; overlay.innerHTML = `<p style="color:#330000; padding:10px; text-align:center; font-size:11px;">${q}</p>`;
-  opts.forEach(o => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = o.t; b.onclick = () => { playSelectSound(); overlay.style.display = 'none'; type(o.r, false, () => o.c ? cb() : ask(q, opts, cb)); }; overlay.appendChild(b); });
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<p style="color:#330000; padding:10px; text-align:center; font-size:11px;">${q}</p>`;
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = o.t;
+    b.onclick = () => {
+      playSelectSound();
+      overlay.style.display = 'none';
+      type(o.r, false, () => o.c ? cb() : ask(q, opts, cb));
+    };
+    overlay.appendChild(b);
+  });
 }
 </script>
 </body>
