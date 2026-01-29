@@ -14,7 +14,7 @@ body {
   background: #ffe6f0;
   overflow: hidden;
   height: 100vh; width: 100vw;
-  touch-action: manipulation; /* Убирает задержку клика на телефонах */
+  touch-action: manipulation;
 }
 
 #bg {
@@ -31,7 +31,7 @@ body {
 #textBox {
   position: absolute; top: 40%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 85%; text-align: center; font-size: 14px;
+  width: 85%; text-align: center; font-size: 12px;
   color: #330000; z-index: 10; pointer-events: none;
   line-height: 1.8;
 }
@@ -62,7 +62,6 @@ body {
   font-size: 9px; color: #ff4d6d; z-index: 100;
 }
 
-/* Стиль для финальной фразы */
 #finalHint {
   position: absolute; top: 25%; left: 50%;
   transform: translateX(-50%);
@@ -75,7 +74,7 @@ body {
 <body>
 <div id="bg"></div>
 <div id="heart">💗</div>
-<div id="textBox">янянянянянянян</div>
+<div id="textBox"></div>
 <div id="finalHint">мое сердце уже у Тебя, не нужно его ловить</div>
 
 <div id="overlay"></div>
@@ -159,7 +158,6 @@ heart.onclick = (e) => {
   if (audioCtx.state === 'suspended') audioCtx.resume();
   e.stopPropagation();
 
-  // Если игра окончена, показываем надпись
   if (isGameOver) {
     playSelectSound();
     finalHint.style.opacity = '1';
@@ -167,7 +165,6 @@ heart.onclick = (e) => {
     return;
   }
   
-  // Обычная логика поимки
   heart.style.display = 'none';
   playCatchSound(); 
   
@@ -191,15 +188,13 @@ function showMenu() {
     });
 
     isGameOver = true;
-    textBox.innerHTML = "«конец! надеюсь, у меня получилось подарить Тебе пару приятных минуток и поднять настроение. я очень старался над этой игрой и учился программировать специально для Тебя, чтобы сделать этот
-
-      подарок особенным.";
+    textBox.innerHTML = "конец! надеюсь, у меня получилось подарить Тебе пару приятных минуток и поднять настроение. я очень старался над этой игрой и учился программировать специально для Тебя, чтобы сделать этот подарок особенным.";
     
     heart.style.display = 'block';
     heart.style.left = '50%';
     heart.style.top = '60%'; 
     heart.style.transform = 'translateX(-50%)';
-    heart.style.cursor = 'pointer'; // Сделал курсор активным, чтобы она догадалась нажать
+    heart.style.cursor = 'pointer';
     return;
   }
   overlay.style.display = 'flex';
